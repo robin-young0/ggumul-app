@@ -1,0 +1,11 @@
+{
+  "buildCommand": "VITE_SINGLE_FILE=true npm run build:preview",
+  "outputDirectory": "dist-preview",
+  "framework": null,
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
