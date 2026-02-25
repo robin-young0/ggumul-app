@@ -1,6 +1,11 @@
 import { useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useThemeStore } from '@/stores/themeStore';
+import {
+  startNotificationScheduler,
+  stopNotificationScheduler,
+  requestNotificationPermission,
+} from '@/utils/localNotifications';
 import Layout from '@/components/Layout';
 import Dashboard from '@/pages/Dashboard';
 import Stats from '@/pages/Stats';
@@ -21,6 +26,22 @@ export default function App() {
   useEffect(() => {
     setTheme(theme);
   }, [theme, setTheme]);
+
+  // localStorage 모드에서 알림 스케줄러 시작
+  useEffect(() => {
+    if (import.meta.env.VITE_SINGLE_FILE) {
+      // 알림 권한 요청 (사용자가 거부하지 않았다면)
+      requestNotificationPermission().then((granted) => {
+        if (granted) {
+          startNotificationScheduler();
+        }
+      });
+
+      return () => {
+        stopNotificationScheduler();
+      };
+    }
+  }, []);
 
   return (
     <Routes>

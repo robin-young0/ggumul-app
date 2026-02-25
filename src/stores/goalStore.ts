@@ -1,6 +1,10 @@
 import { create } from 'zustand';
 import type { Goal, GoalCreateUpdate } from '@/types';
 import * as goalsApi from '@/api/goals';
+import {
+  updateGoalNotificationSchedules,
+  removeGoalNotificationSchedules,
+} from '@/utils/localNotifications';
 
 interface GoalStore {
   goals: Goal[];
@@ -39,6 +43,12 @@ export const useGoalStore = create<GoalStore>((set) => ({
   addGoal: async (data) => {
     const goal = await goalsApi.createGoal(data);
     set((state) => ({ goals: [...state.goals, goal] }));
+
+    // localStorage 모드에서 알림 스케줄 저장
+    if (import.meta.env.VITE_SINGLE_FILE && data.notification_schedules) {
+      updateGoalNotificationSchedules(goal.id, goal.name, data.notification_schedules);
+    }
+
     return goal;
   },
 
@@ -47,6 +57,16 @@ export const useGoalStore = create<GoalStore>((set) => ({
     set((state) => ({
       goals: state.goals.map((g) => (g.id === id ? updated : g)),
     }));
+
+    // localStorage 모드에서 알림 스케줄 업데이트
+    if (import.meta.env.VITE_SINGLE_FILE) {
+      if (data.notification_schedules) {
+        updateGoalNotificationSchedules(updated.id, updated.name, data.notification_schedules);
+      } else {
+        // 알림 스케줄이 없으면 제거
+        removeGoalNotificationSchedules(id);
+      }
+    }
   },
 
   deleteGoal: async (id) => {
@@ -54,5 +74,10 @@ export const useGoalStore = create<GoalStore>((set) => ({
     set((state) => ({
       goals: state.goals.filter((g) => g.id !== id),
     }));
+
+    // localStorage 모드에서 알림 스케줄 삭제
+    if (import.meta.env.VITE_SINGLE_FILE) {
+      removeGoalNotificationSchedules(id);
+    }
   },
 }));

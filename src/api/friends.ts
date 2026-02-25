@@ -1,4 +1,6 @@
 import client from './client';
+import { isFirebaseConfigured } from '@/utils/firebase';
+import * as firebaseFriends from '@/utils/firebaseFriends';
 
 export interface Friend {
   device_id: string;
@@ -25,9 +27,12 @@ export interface AcceptInviteResponse {
  * 초대 코드 생성
  */
 export const createInviteCode = async (): Promise<InviteCodeResponse> => {
+  // localStorage 모드: Firebase 사용
   if (import.meta.env.VITE_SINGLE_FILE) {
-    // localStorage 모드에서는 친구 기능 비활성화
-    throw new Error('친구 기능은 온라인 모드에서만 사용 가능합니다.');
+    if (!isFirebaseConfigured()) {
+      throw new Error('Firebase 설정이 필요합니다. 환경변수를 확인해주세요.');
+    }
+    return firebaseFriends.createInviteCode();
   }
 
   const response = await client.post('/friends/invite');
@@ -38,9 +43,12 @@ export const createInviteCode = async (): Promise<InviteCodeResponse> => {
  * 초대 코드 수락
  */
 export const acceptInviteCode = async (code: string): Promise<AcceptInviteResponse> => {
+  // localStorage 모드: Firebase 사용
   if (import.meta.env.VITE_SINGLE_FILE) {
-    // localStorage 모드에서는 친구 기능 비활성화
-    throw new Error('친구 기능은 온라인 모드에서만 사용 가능합니다.');
+    if (!isFirebaseConfigured()) {
+      throw new Error('Firebase 설정이 필요합니다. 환경변수를 확인해주세요.');
+    }
+    return firebaseFriends.acceptInviteCode(code);
   }
 
   const response = await client.post(`/friends/accept/${code}`);
@@ -51,9 +59,12 @@ export const acceptInviteCode = async (code: string): Promise<AcceptInviteRespon
  * 친구 목록 조회
  */
 export const getFriends = async (): Promise<Friend[]> => {
+  // localStorage 모드: Firebase 사용
   if (import.meta.env.VITE_SINGLE_FILE) {
-    // localStorage 모드에서는 빈 친구 목록 반환
-    return [];
+    if (!isFirebaseConfigured()) {
+      return []; // Firebase 미설정 시 빈 배열
+    }
+    return firebaseFriends.getFriends();
   }
 
   const response = await client.get('/friends');
@@ -64,9 +75,12 @@ export const getFriends = async (): Promise<Friend[]> => {
  * 친구 삭제
  */
 export const removeFriend = async (friendDeviceId: string): Promise<{ success: boolean; message: string }> => {
+  // localStorage 모드: Firebase 사용
   if (import.meta.env.VITE_SINGLE_FILE) {
-    // localStorage 모드에서는 친구 기능 비활성화
-    throw new Error('친구 기능은 온라인 모드에서만 사용 가능합니다.');
+    if (!isFirebaseConfigured()) {
+      throw new Error('Firebase 설정이 필요합니다. 환경변수를 확인해주세요.');
+    }
+    return firebaseFriends.removeFriend(friendDeviceId);
   }
 
   const response = await client.delete(`/friends/${friendDeviceId}`);
