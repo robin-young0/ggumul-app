@@ -25,6 +25,11 @@ export interface AcceptInviteResponse {
  * 초대 코드 생성
  */
 export const createInviteCode = async (): Promise<InviteCodeResponse> => {
+  if (import.meta.env.VITE_SINGLE_FILE) {
+    // localStorage 모드에서는 친구 기능 비활성화
+    throw new Error('친구 기능은 온라인 모드에서만 사용 가능합니다.');
+  }
+
   const response = await client.post('/friends/invite');
   return response.data;
 };
@@ -33,6 +38,11 @@ export const createInviteCode = async (): Promise<InviteCodeResponse> => {
  * 초대 코드 수락
  */
 export const acceptInviteCode = async (code: string): Promise<AcceptInviteResponse> => {
+  if (import.meta.env.VITE_SINGLE_FILE) {
+    // localStorage 모드에서는 친구 기능 비활성화
+    throw new Error('친구 기능은 온라인 모드에서만 사용 가능합니다.');
+  }
+
   const response = await client.post(`/friends/accept/${code}`);
   return response.data;
 };
@@ -41,6 +51,11 @@ export const acceptInviteCode = async (code: string): Promise<AcceptInviteRespon
  * 친구 목록 조회
  */
 export const getFriends = async (): Promise<Friend[]> => {
+  if (import.meta.env.VITE_SINGLE_FILE) {
+    // localStorage 모드에서는 빈 친구 목록 반환
+    return [];
+  }
+
   const response = await client.get('/friends');
   return response.data;
 };
@@ -49,6 +64,11 @@ export const getFriends = async (): Promise<Friend[]> => {
  * 친구 삭제
  */
 export const removeFriend = async (friendDeviceId: string): Promise<{ success: boolean; message: string }> => {
+  if (import.meta.env.VITE_SINGLE_FILE) {
+    // localStorage 모드에서는 친구 기능 비활성화
+    throw new Error('친구 기능은 온라인 모드에서만 사용 가능합니다.');
+  }
+
   const response = await client.delete(`/friends/${friendDeviceId}`);
   return response.data;
 };
