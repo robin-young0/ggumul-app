@@ -28,15 +28,25 @@ export const isFirebaseConfigured = () => {
 
 // Firebase 초기화 (설정이 있을 때만)
 if (isFirebaseConfigured()) {
-  app = initializeApp(firebaseConfig);
-  db = getFirestore(app);
+  try {
+    app = initializeApp(firebaseConfig);
+    db = getFirestore(app);
 
-  // Messaging은 지원하는 환경에서만 초기화
-  isSupported().then((supported) => {
-    if (supported) {
-      messaging = getMessaging(app);
-    }
-  });
+    // Messaging은 지원하는 환경에서만 초기화
+    isSupported().then((supported) => {
+      if (supported && app) {
+        messaging = getMessaging(app);
+      }
+    }).catch((err) => {
+      console.warn('[Firebase] Messaging 초기화 실패:', err);
+    });
+
+    console.log('[Firebase] 초기화 완료');
+  } catch (err) {
+    console.error('[Firebase] 초기화 실패:', err);
+  }
+} else {
+  console.log('[Firebase] 환경 변수가 설정되지 않아 Firebase를 초기화하지 않습니다.');
 }
 
 export { app, db, messaging };

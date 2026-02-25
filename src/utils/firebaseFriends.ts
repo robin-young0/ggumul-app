@@ -151,10 +151,16 @@ export async function acceptInviteCode(code: string): Promise<AcceptInviteRespon
  */
 export async function getFriends(): Promise<Friend[]> {
   if (!isFirebaseConfigured() || !db) {
+    console.log('[firebaseFriends] Firebase가 설정되지 않아 빈 친구 목록 반환');
     return [];
   }
 
-  await syncMyDevice();
+  try {
+    await syncMyDevice();
+  } catch (err) {
+    console.error('[firebaseFriends] syncMyDevice 실패:', err);
+    return [];
+  }
 
   const myDeviceId = getOrCreateDeviceId();
 
