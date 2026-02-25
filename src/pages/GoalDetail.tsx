@@ -22,7 +22,7 @@ export default function GoalDetail() {
   useEffect(() => {
     if (!id) return;
 
-    getGoal(id)
+    getGoal(Number(id))
       .then(setGoal)
       .catch(console.error)
       .finally(() => setLoading(false));
