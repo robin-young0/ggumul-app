@@ -64,8 +64,12 @@ export const localGoals = {
     const goals = this.getAll();
     const deviceId = localStorage.getItem(STORAGE_KEYS.DEVICE_ID) || 'local-device';
 
+    // ID 생성: 기존 목표들 중 최대 ID + 1 (중복 방지)
+    const maxId = goals.reduce((max, g) => Math.max(max, g.id), 0);
+    const newId = maxId > 0 ? maxId + 1 : Date.now();
+
     const newGoal: StoredGoal = {
-      id: Date.now(),
+      id: newId,
       device_id: deviceId,
       name: data.name,
       first_action: data.first_action,
@@ -144,8 +148,12 @@ export const localAttempts = {
       return attempts[existingIndex];
     }
 
+    // ID 생성: 기존 시도들 중 최대 ID + 1 (중복 방지)
+    const maxId = attempts.reduce((max, a) => Math.max(max, a.id), 0);
+    const newId = maxId > 0 ? maxId + 1 : Date.now();
+
     const newAttempt: StoredAttempt = {
-      id: Date.now(),
+      id: newId,
       goal_id: goalId,
       attempted_date: data.attempted_date,
       success: data.success,
