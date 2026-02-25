@@ -1,6 +1,7 @@
 import { Outlet, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { useThemeStore } from '@/stores/themeStore';
+import { useAuth } from '@/hooks/useAuth';
 import StreakWidget from './StreakWidget';
 import NicknameModal from './NicknameModal';
 import { getMyDeviceInfo } from '@/api/devices';
@@ -16,6 +17,7 @@ export default function Layout() {
   const [nicknameModalOpen, setNicknameModalOpen] = useState(false);
   const [nickname, setNickname] = useState<string | null>(null);
   const { theme, toggleTheme } = useThemeStore();
+  const { user, signInWithGoogle, signOut, loading: authLoading } = useAuth();
   const isCountdown = location.pathname.includes('/countdown');
 
   useEffect(() => {
@@ -136,6 +138,45 @@ export default function Layout() {
                       </>
                     )}
                   </button>
+
+                  <div className="border-t border-border"></div>
+
+                  {/* 로그인/로그아웃 */}
+                  {user ? (
+                    <button
+                      onClick={() => {
+                        setMenuOpen(false);
+                        signOut();
+                      }}
+                      className="w-full px-4 py-3 text-left text-text hover:bg-bg transition-colors flex items-start gap-3"
+                    >
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mt-0.5 flex-shrink-0">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                        <polyline points="16 17 21 12 16 7"/>
+                        <line x1="21" y1="12" x2="9" y2="12"/>
+                      </svg>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-text truncate">{user.displayName || user.email}</p>
+                        <p className="text-xs text-muted">로그아웃</p>
+                      </div>
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        setMenuOpen(false);
+                        signInWithGoogle();
+                      }}
+                      disabled={authLoading}
+                      className="w-full px-4 py-3 text-left text-primary-500 hover:bg-primary-500/10 transition-colors flex items-center gap-3 disabled:opacity-50"
+                    >
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+                        <polyline points="10 17 15 12 10 7"/>
+                        <line x1="15" y1="12" x2="3" y2="12"/>
+                      </svg>
+                      Google 로그인
+                    </button>
+                  )}
 
                   <div className="border-t border-border"></div>
 

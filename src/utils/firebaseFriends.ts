@@ -10,11 +10,17 @@ import {
   serverTimestamp,
   Timestamp,
 } from 'firebase/firestore';
-import { db, isFirebaseConfigured } from './firebase';
+import { db, isFirebaseConfigured, auth } from './firebase';
 import type { Friend, InviteCodeResponse, AcceptInviteResponse } from '@/api/friends';
 
-// Device ID 생성 또는 가져오기
-export function getOrCreateDeviceId(): string {
+// 사용자 ID 가져오기 (로그인된 경우 UID, 아니면 기기 ID)
+export function getUserId(): string {
+  // 로그인된 사용자가 있으면 UID 사용
+  if (auth?.currentUser) {
+    return auth.currentUser.uid;
+  }
+
+  // 로그인 안 됐으면 기기 ID 사용 (하위 호환성)
   const STORAGE_KEY = 'ggumul_device_id';
   let deviceId = localStorage.getItem(STORAGE_KEY);
 
@@ -26,6 +32,9 @@ export function getOrCreateDeviceId(): string {
   return deviceId;
 }
 
+// 하위 호환성을 위한 별칭
+export const getOrCreateDeviceId = getUserId;
+
 // Firestore 컬렉션 참조
 const COLLECTIONS = {
   DEVICES: 'devices',
@@ -34,21 +43,31 @@ const COLLECTIONS = {
 };
 
 /**
- * 내 디바이스 정보 저장/업데이트
+ * 내 사용자 정보 저장/업데이트
  */
 export async function syncMyDevice() {
   if (!isFirebaseConfigured() || !db) return;
 
-  const deviceId = getOrCreateDeviceId();
+  const userId = getUserId();
   const nickname = localStorage.getItem('ggumul_nickname');
 
+  // 사용자 정보 구성
+  const userData: any = {
+    device_id: userId,
+    nickname: nickname || null,
+    last_active: serverTimestamp(),
+  };
+
+  // 로그인된 사용자면 추가 정보 저장
+  if (auth?.currentUser) {
+    userData.email = auth.currentUser.email;
+    userData.display_name = auth.currentUser.displayName;
+    userData.photo_url = auth.currentUser.photoURL;
+  }
+
   await setDoc(
-    doc(db, COLLECTIONS.DEVICES, deviceId),
-    {
-      device_id: deviceId,
-      nickname: nickname || null,
-      last_active: serverTimestamp(),
-    },
+    doc(db, COLLECTIONS.DEVICES, userId),
+    userData,
     { merge: true }
   );
 }

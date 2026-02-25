@@ -1,6 +1,7 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import { getMessaging, isSupported } from 'firebase/messaging';
+import { getAuth } from 'firebase/auth';
 
 // Firebase 설정 (환경변수에서 가져옴)
 const firebaseConfig = {
@@ -16,6 +17,7 @@ const firebaseConfig = {
 let app;
 let db;
 let messaging;
+let auth;
 
 // Firebase가 설정되어 있는지 확인 (모든 필수 값이 있어야 함)
 export const isFirebaseConfigured = () => {
@@ -37,6 +39,7 @@ if (isFirebaseConfigured()) {
   try {
     app = initializeApp(firebaseConfig);
     db = getFirestore(app);
+    auth = getAuth(app);
 
     // Messaging은 지원하는 환경에서만 초기화
     isSupported().then((supported) => {
@@ -47,7 +50,7 @@ if (isFirebaseConfigured()) {
       console.warn('[Firebase] Messaging 초기화 실패:', err);
     });
 
-    console.log('[Firebase] 초기화 완료');
+    console.log('[Firebase] 초기화 완료 (Auth 포함)');
   } catch (err) {
     console.error('[Firebase] 초기화 실패:', err);
   }
@@ -55,4 +58,4 @@ if (isFirebaseConfigured()) {
   console.log('[Firebase] 환경 변수가 설정되지 않아 Firebase를 초기화하지 않습니다.');
 }
 
-export { app, db, messaging };
+export { app, db, messaging, auth };
