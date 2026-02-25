@@ -17,12 +17,18 @@ let app;
 let db;
 let messaging;
 
-// Firebase가 설정되어 있는지 확인
+// Firebase가 설정되어 있는지 확인 (모든 필수 값이 있어야 함)
 export const isFirebaseConfigured = () => {
   return !!(
     firebaseConfig.apiKey &&
+    firebaseConfig.authDomain &&
     firebaseConfig.projectId &&
-    firebaseConfig.appId
+    firebaseConfig.storageBucket &&
+    firebaseConfig.messagingSenderId &&
+    firebaseConfig.appId &&
+    // 'undefined' 문자열이 아닌지도 확인
+    firebaseConfig.apiKey !== 'undefined' &&
+    firebaseConfig.projectId !== 'undefined'
   );
 };
 
