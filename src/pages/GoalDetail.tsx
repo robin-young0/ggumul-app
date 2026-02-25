@@ -35,8 +35,9 @@ export default function GoalDetail() {
 
     try {
       await deleteGoal(Number(id));
-      navigate('/');
+      navigate('/', { replace: true });
     } catch (error) {
+      console.error('[GoalDetail] 삭제 실패:', error);
       alert('삭제에 실패했어요. 다시 시도해주세요.');
     }
   };
