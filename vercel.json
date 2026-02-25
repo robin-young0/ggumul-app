@@ -1,6 +1,7 @@
 {
-  "buildCommand": "VITE_SINGLE_FILE=true npm run build:preview",
+  "buildCommand": "npm run build:preview",
   "outputDirectory": "dist-preview",
+  "installCommand": "npm install",
   "framework": null,
   "rewrites": [
     {
