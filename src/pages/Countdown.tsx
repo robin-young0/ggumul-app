@@ -26,15 +26,19 @@ export default function Countdown() {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    // 마운트 시 이전 타이머 잔여 상태 초기화
-    clearTimer();
-
     const init = async () => {
       try {
+        // 먼저 이전 타이머 완전히 초기화
+        clearTimer();
+
         const goalData = await getGoal(goalId);
         setGoal(goalData);
-        startTimer(goalId, goalData.countdown_seconds);
-        setReady(true);
+
+        // 약간의 지연 후 새 타이머 시작 (상태 안정화)
+        setTimeout(() => {
+          startTimer(goalId, goalData.countdown_seconds);
+          setReady(true);
+        }, 100);
       } catch (err) {
         console.error('[Countdown] 목표 로드 실패:', err);
         navigate('/');
@@ -52,7 +56,8 @@ export default function Countdown() {
       clearTimer();
       navigate(`/goals/${goalId}/result?success=false`);
     }
-  }, [ready, isExpired, goalId, navigate, clearTimer]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ready, isExpired, goalId]);
 
   const handleSuccess = () => {
     haptic.success();
