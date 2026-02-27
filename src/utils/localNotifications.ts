@@ -158,10 +158,10 @@ export function startNotificationScheduler(): void {
   // 즉시 한 번 체크
   checkAndShowNotifications();
 
-  // 1분마다 체크
+  // 30초마다 체크
   notificationInterval = window.setInterval(() => {
     checkAndShowNotifications();
-  }, 60000); // 60초
+  }, 30000); // 30초
 }
 
 /**
