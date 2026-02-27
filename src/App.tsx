@@ -6,8 +6,6 @@ import {
   stopNotificationScheduler,
   requestNotificationPermission,
 } from '@/utils/localNotifications';
-import { getFCMToken, setupForegroundMessageListener } from '@/utils/fcm';
-import { isFirebaseConfigured } from '@/utils/firebase';
 import Layout from '@/components/Layout';
 import Dashboard from '@/pages/Dashboard';
 import Stats from '@/pages/Stats';
@@ -32,37 +30,22 @@ export default function App() {
   // 알림 시스템 초기화
   useEffect(() => {
     const initNotifications = async () => {
-      // Firebase가 설정되어 있으면 FCM 사용 (백그라운드 알림)
-      if (isFirebaseConfigured()) {
-        console.log('[App] Firebase 설정됨 - FCM 초기화');
+      // 로컬 스케줄러 사용 (무료)
+      console.log('[App] 로컬 알림 스케줄러 초기화');
 
-        // FCM 토큰 가져오기
-        const token = await getFCMToken();
-        if (token) {
-          console.log('[App] FCM 토큰 발급 완료');
-
-          // 포그라운드 메시지 리스너 설정
-          setupForegroundMessageListener();
-        }
+      const granted = await requestNotificationPermission();
+      if (granted) {
+        startNotificationScheduler();
+        console.log('[App] 로컬 알림 스케줄러 시작됨');
       } else {
-        // Firebase 미설정 시 로컬 스케줄러 사용
-        console.log('[App] Firebase 미설정 - 로컬 스케줄러 사용');
-
-        if (import.meta.env.VITE_SINGLE_FILE) {
-          const granted = await requestNotificationPermission();
-          if (granted) {
-            startNotificationScheduler();
-          }
-        }
+        console.log('[App] 알림 권한이 거부되었습니다.');
       }
     };
 
     initNotifications();
 
     return () => {
-      if (!isFirebaseConfigured()) {
-        stopNotificationScheduler();
-      }
+      stopNotificationScheduler();
     };
   }, []);
 
