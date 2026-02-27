@@ -5,6 +5,10 @@ import {
   updateGoalNotificationSchedules,
   removeGoalNotificationSchedules,
 } from '@/utils/localNotifications';
+import {
+  saveGoalToFirestore,
+  deleteGoalFromFirestore,
+} from '@/utils/firestoreGoals';
 
 interface GoalStore {
   goals: Goal[];
@@ -44,6 +48,9 @@ export const useGoalStore = create<GoalStore>((set) => ({
     const goal = await goalsApi.createGoal(data);
     set((state) => ({ goals: [...state.goals, goal] }));
 
+    // Firestore에 목표 저장 (FCM 알림용)
+    await saveGoalToFirestore(goal);
+
     // localStorage 모드에서 알림 스케줄 저장
     if (import.meta.env.VITE_SINGLE_FILE && data.notification_schedules) {
       updateGoalNotificationSchedules(goal.id, goal.name, data.notification_schedules);
@@ -57,6 +64,9 @@ export const useGoalStore = create<GoalStore>((set) => ({
     set((state) => ({
       goals: state.goals.map((g) => (g.id === id ? updated : g)),
     }));
+
+    // Firestore에 목표 업데이트 (FCM 알림용)
+    await saveGoalToFirestore(updated);
 
     // localStorage 모드에서 알림 스케줄 업데이트
     if (import.meta.env.VITE_SINGLE_FILE) {
@@ -74,6 +84,9 @@ export const useGoalStore = create<GoalStore>((set) => ({
     set((state) => ({
       goals: state.goals.filter((g) => g.id !== id),
     }));
+
+    // Firestore에서 목표 삭제 (FCM 알림용)
+    await deleteGoalFromFirestore(id);
 
     // localStorage 모드에서 알림 스케줄 삭제
     if (import.meta.env.VITE_SINGLE_FILE) {
