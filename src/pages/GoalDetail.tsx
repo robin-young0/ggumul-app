@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { haptic } from '@/utils/haptic';
-import type { Goal, Attempt } from '@/types';
+import type { Goal } from '@/types';
 import { getGoal } from '@/api/goals';
 import { useGoalStore } from '@/stores/goalStore';
 import RevivalCardBadge from '@/components/RevivalCardBadge';
@@ -159,7 +159,9 @@ export default function GoalDetail() {
               <span className="text-3xl font-bold text-primary-500">{goal.current_streak}</span>
               <span className="text-muted">일</span>
             </div>
-            <StreakBadge streak={goal.current_streak} className="mt-2" />
+            <div className="mt-2">
+              <StreakBadge streak={goal.current_streak} />
+            </div>
           </div>
 
           <div className="bg-surface border border-border rounded-2xl p-5 shadow-sm">
@@ -173,7 +175,7 @@ export default function GoalDetail() {
           <div className="bg-surface border border-border rounded-2xl p-5 shadow-sm">
             <div className="text-sm text-muted mb-1">부활 카드</div>
             <div className="flex items-baseline gap-2">
-              <RevivalCardBadge count={goal.revival_cards} size="lg" />
+              <RevivalCardBadge count={goal.revival_cards} />
             </div>
             <div className="text-xs text-muted mt-2">7일 연속 시 1장 지급</div>
           </div>

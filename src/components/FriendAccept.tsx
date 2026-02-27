@@ -20,7 +20,7 @@ export default function FriendAccept({ onSuccess }: FriendAcceptProps) {
     try {
       setLoading(true);
       setError(null);
-      const result = await acceptInviteCode(code.trim().toUpperCase());
+      await acceptInviteCode(code.trim().toUpperCase());
       setSuccess(true);
       setCode('');
       setTimeout(() => {

@@ -10,7 +10,6 @@ export default function StreakWidget() {
 
   // 활성 Streak가 있는 목표들
   const activeStreaks = goals.filter(g => g.current_streak > 0);
-  const totalStreakDays = activeStreaks.reduce((sum, g) => sum + g.current_streak, 0);
   const maxStreak = Math.max(...activeStreaks.map(g => g.current_streak), 0);
 
   // Streak가 없으면 표시하지 않음

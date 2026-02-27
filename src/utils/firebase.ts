@@ -14,10 +14,11 @@ const firebaseConfig = {
 };
 
 // Firebase 초기화
-let app;
-let db;
-let messaging;
-let auth;
+let app: any;
+let db: any;
+let messaging: any;
+let auth: any;
+let messagingInitialized = false;
 
 // Firebase가 설정되어 있는지 확인 (모든 필수 값이 있어야 함)
 export const isFirebaseConfigured = () => {
@@ -41,21 +42,46 @@ if (isFirebaseConfigured()) {
     db = getFirestore(app);
     auth = getAuth(app);
 
-    // Messaging은 지원하는 환경에서만 초기화
+    console.log('[Firebase] 초기화 완료 (Auth 포함)');
+
+    // Messaging은 지원하는 환경에서만 초기화 (비동기)
     isSupported().then((supported) => {
       if (supported && app) {
-        messaging = getMessaging(app);
+        try {
+          messaging = getMessaging(app);
+          messagingInitialized = true;
+          console.log('[Firebase] Messaging 초기화 완료');
+        } catch (err) {
+          console.warn('[Firebase] Messaging 초기화 실패:', err);
+        }
+      } else {
+        console.log('[Firebase] Messaging 지원 안 됨');
       }
     }).catch((err) => {
-      console.warn('[Firebase] Messaging 초기화 실패:', err);
+      console.warn('[Firebase] Messaging 지원 확인 실패:', err);
     });
-
-    console.log('[Firebase] 초기화 완료 (Auth 포함)');
   } catch (err) {
     console.error('[Firebase] 초기화 실패:', err);
   }
 } else {
   console.log('[Firebase] 환경 변수가 설정되지 않아 Firebase를 초기화하지 않습니다.');
+}
+
+// Messaging 초기화 대기 함수
+export async function waitForMessaging(): Promise<boolean> {
+  // 이미 초기화되었으면 바로 반환
+  if (messagingInitialized) return true;
+
+  // Firebase가 설정되지 않았으면 false
+  if (!isFirebaseConfigured()) return false;
+
+  // 최대 5초 대기
+  for (let i = 0; i < 50; i++) {
+    if (messagingInitialized) return true;
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+
+  return false;
 }
 
 export { app, db, messaging, auth };

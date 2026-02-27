@@ -1,4 +1,3 @@
-import { useRef } from 'react';
 import FriendInvite from '@/components/FriendInvite';
 import FriendAccept from '@/components/FriendAccept';
 import FriendsList from '@/components/FriendsList';
@@ -8,7 +7,6 @@ import FriendsList from '@/components/FriendsList';
  * 친구 초대 및 친구 목록 표시.
  */
 export default function Friends() {
-  const friendsListRef = useRef<{ refresh: () => void }>(null);
 
   const handleFriendAdded = () => {
     // 친구 추가 성공 시 목록 새로고침

@@ -1,5 +1,5 @@
 import client from './client';
-import { localAttempts, localGoals } from '@/utils/localStorage';
+import { localAttempts } from '@/utils/localStorage';
 
 export const getTodayStats = async () => {
   if (import.meta.env.VITE_SINGLE_FILE) {

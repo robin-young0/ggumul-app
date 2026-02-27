@@ -1,14 +1,21 @@
 import { getToken, onMessage } from 'firebase/messaging';
-import { messaging, isFirebaseConfigured } from './firebase';
+import { messaging, isFirebaseConfigured, waitForMessaging } from './firebase';
 import { doc, setDoc } from 'firebase/firestore';
-import { db, auth } from './firebase';
+import { db } from './firebase';
 import { getUserId } from './firebaseFriends';
 
 /**
  * FCM 토큰 가져오기 및 저장
  */
 export async function getFCMToken(): Promise<string | null> {
-  if (!isFirebaseConfigured() || !messaging) {
+  if (!isFirebaseConfigured()) {
+    console.log('[FCM] Firebase가 설정되지 않았습니다.');
+    return null;
+  }
+
+  // Messaging 초기화 대기
+  const initialized = await waitForMessaging();
+  if (!initialized || !messaging) {
     console.log('[FCM] Firebase Messaging이 초기화되지 않았습니다.');
     return null;
   }

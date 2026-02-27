@@ -17,7 +17,6 @@ export default function Stats() {
 
   // 오늘 아직 안한 목표가 있는지
   const hasIncompleteToday = goals.some(g => !g.today_success);
-  const hasGoals = goals.length > 0;
 
   return (
     <div className="pb-20 space-y-8">
