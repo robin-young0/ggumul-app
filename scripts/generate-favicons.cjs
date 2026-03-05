@@ -11,6 +11,8 @@ const sizes = [
   { name: 'favicon-32x32.png', size: 32 },
   { name: 'apple-touch-icon.png', size: 180 },
   { name: 'favicon.ico', size: 32 }, // ICO는 32x32로 생성
+  { name: 'pwa-192x192.png', size: 192 }, // PWA 아이콘
+  { name: 'pwa-512x512.png', size: 512 }, // PWA 아이콘 (고해상도)
 ];
 
 async function generateFavicons() {
