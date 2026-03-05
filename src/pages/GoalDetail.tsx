@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { haptic } from '@/utils/haptic';
 import type { Goal } from '@/types';
 import { getGoal } from '@/api/goals';
@@ -14,19 +14,30 @@ import StreakBadge from '@/components/StreakBadge';
 export default function GoalDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const { deleteGoal } = useGoalStore();
   const [goal, setGoal] = useState<Goal | null>(null);
   const [loading, setLoading] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
 
-  useEffect(() => {
+  // 목표 데이터 로드 함수
+  const loadGoal = async () => {
     if (!id) return;
 
-    getGoal(Number(id))
-      .then(setGoal)
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, [id]);
+    try {
+      const data = await getGoal(Number(id));
+      setGoal(data);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 페이지 진입 시마다 데이터 로드 (location.key가 변할 때마다)
+  useEffect(() => {
+    loadGoal();
+  }, [id, location.key]);
 
   const handleDelete = async () => {
     if (!id) return;
@@ -201,12 +212,22 @@ export default function GoalDetail() {
         </div>
 
         {/* 액션 버튼 */}
-        {!goal.today_success && (
+        {!goal.today_success && !goal.today_attempted && (
           <button
             onClick={() => navigate(`/goals/${id}/countdown`)}
             className="w-full py-4 rounded-2xl bg-primary-500 hover:bg-primary-600 text-white font-semibold text-lg transition-all active:scale-[0.98] shadow-lg shadow-primary-500/20"
           >
             지금 시작하기
+          </button>
+        )}
+
+        {/* 부활 버튼 (실패했을 때) */}
+        {!goal.today_success && goal.today_attempted && goal.revival_cards > 0 && (
+          <button
+            onClick={() => navigate('/')}
+            className="w-full py-4 rounded-2xl bg-amber-500/10 border-2 border-amber-500/30 text-amber-700 dark:text-amber-400 font-semibold text-lg transition-all active:scale-[0.98] hover:bg-amber-500/15"
+          >
+            💎 부활 카드 사용하기 ({goal.revival_cards}장)
           </button>
         )}
       </div>
