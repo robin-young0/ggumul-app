@@ -1,5 +1,5 @@
 import { Outlet, NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useThemeStore } from '@/stores/themeStore';
 import { useAuth } from '@/hooks/useAuth';
 import StreakWidget from './StreakWidget';
@@ -19,6 +19,19 @@ export default function Layout() {
   const { theme, toggleTheme } = useThemeStore();
   const { user, signInWithGoogle, signOut, loading: authLoading } = useAuth();
   const isCountdown = location.pathname.includes('/countdown');
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // 메뉴 외부 클릭 시 닫기
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [menuOpen]);
 
   useEffect(() => {
     loadDeviceInfo();
@@ -46,14 +59,6 @@ export default function Layout() {
 
   return (
     <div className="flex flex-col min-h-screen max-w-md sm:max-w-2xl md:max-w-4xl lg:max-w-6xl mx-auto bg-bg">
-      {/* 메뉴 배경 오버레이 */}
-      {menuOpen && (
-        <div
-          className="fixed inset-0 z-40"
-          onClick={() => setMenuOpen(false)}
-        />
-      )}
-
       {/* 상단 헤더 */}
       <header className="safe-top fixed top-0 left-0 right-0 z-30 backdrop-blur-xl bg-bg/80 border-b border-border">
         <div className="max-w-md sm:max-w-2xl md:max-w-4xl lg:max-w-6xl mx-auto px-5 py-4 flex items-center justify-between">
@@ -63,7 +68,7 @@ export default function Layout() {
           </h1>
 
           {/* 메뉴 버튼 */}
-          <div className="relative">
+          <div className="relative" ref={menuRef}>
             <button
               onClick={() => setMenuOpen(!menuOpen)}
               className="p-2 rounded-lg text-muted hover:text-text hover:bg-surface/50 transition-all min-w-[40px] min-h-[40px] flex items-center justify-center"
@@ -78,8 +83,7 @@ export default function Layout() {
             {/* 드롭다운 메뉴 */}
             {menuOpen && (
               <>
-                {/* 메뉴 */}
-                <div className="absolute right-0 top-12 z-50 w-56 bg-surface border border-border rounded-xl shadow-xl overflow-hidden animate-slide-up">
+                <div className="absolute right-0 top-12 z-10 w-56 bg-surface border border-border rounded-xl shadow-xl overflow-hidden animate-slide-up">
                   {/* 프로필 섹션 */}
                   <button
                     onClick={() => {
