@@ -75,12 +75,12 @@ export default function NotificationGuide() {
             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
             <path d="M13.73 21a2 2 0 0 1-3.46 0" />
           </svg>
-          <span className="text-sm font-semibold text-primary-300">{guide.title}</span>
+          <span className="text-sm font-semibold text-primary-500">{guide.title}</span>
         </div>
         <button
           type="button"
           onClick={handleDismiss}
-          className="text-neutral-500 hover:text-neutral-300 transition-colors p-0.5"
+          className="text-muted hover:text-text transition-colors p-0.5"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <line x1="18" y1="6" x2="6" y2="18" />
@@ -88,13 +88,13 @@ export default function NotificationGuide() {
           </svg>
         </button>
       </div>
-      <p className="text-xs text-neutral-400">
+      <p className="text-xs text-muted">
         알림이 안 오거나 소리가 안 나면 아래 설정을 확인해주세요.
       </p>
       <ol className="space-y-1.5">
         {guide.steps.map((step, i) => (
-          <li key={i} className="flex items-start gap-2 text-xs text-neutral-300">
-            <span className="shrink-0 w-5 h-5 rounded-full bg-primary-500/15 text-primary-400 flex items-center justify-center text-[10px] font-bold mt-0.5">
+          <li key={i} className="flex items-start gap-2 text-xs text-text">
+            <span className="shrink-0 w-5 h-5 rounded-full bg-primary-500/15 text-primary-500 flex items-center justify-center text-[10px] font-bold mt-0.5">
               {i + 1}
             </span>
             <span>{step}</span>

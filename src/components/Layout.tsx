@@ -46,6 +46,14 @@ export default function Layout() {
 
   return (
     <div className="flex flex-col min-h-screen max-w-md sm:max-w-2xl md:max-w-4xl lg:max-w-6xl mx-auto bg-bg">
+      {/* 메뉴 배경 오버레이 */}
+      {menuOpen && (
+        <div
+          className="fixed inset-0 z-40"
+          onClick={() => setMenuOpen(false)}
+        />
+      )}
+
       {/* 상단 헤더 */}
       <header className="safe-top fixed top-0 left-0 right-0 z-30 backdrop-blur-xl bg-bg/80 border-b border-border">
         <div className="max-w-md sm:max-w-2xl md:max-w-4xl lg:max-w-6xl mx-auto px-5 py-4 flex items-center justify-between">
@@ -70,14 +78,8 @@ export default function Layout() {
             {/* 드롭다운 메뉴 */}
             {menuOpen && (
               <>
-                {/* 배경 오버레이 */}
-                <div
-                  className="fixed inset-0 z-10"
-                  onClick={() => setMenuOpen(false)}
-                />
-
                 {/* 메뉴 */}
-                <div className="absolute right-0 top-12 z-20 w-56 bg-surface border border-border rounded-xl shadow-xl overflow-hidden animate-slide-up">
+                <div className="absolute right-0 top-12 z-50 w-56 bg-surface border border-border rounded-xl shadow-xl overflow-hidden animate-slide-up">
                   {/* 프로필 섹션 */}
                   <button
                     onClick={() => {

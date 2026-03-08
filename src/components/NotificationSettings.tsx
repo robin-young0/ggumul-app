@@ -39,6 +39,7 @@ export default function NotificationSettings({
   const [showCustomTime, setShowCustomTime] = useState(false);
   const [customHour, setCustomHour] = useState(9);
   const [customMinute, setCustomMinute] = useState(0);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
   const addSchedule = (hour: number, minute: number) => {
     if (schedules.some((s) => s.hour === hour && s.minute === minute)) return;
@@ -241,10 +242,80 @@ export default function NotificationSettings({
                 const originalIdx = schedules.findIndex(
                   (s) => s.hour === schedule.hour && s.minute === schedule.minute,
                 );
+                const isEditing = editingIndex === originalIdx;
+
+                if (isEditing) {
+                  return (
+                    <div
+                      key={`${schedule.hour}-${schedule.minute}-edit`}
+                      className="rounded-xl border border-primary-500/40 bg-primary-500/5 p-3.5"
+                    >
+                      <div className="flex items-center justify-center gap-1.5 mb-3">
+                        <div className="flex items-center rounded-lg bg-surface border border-border overflow-hidden">
+                          <select
+                            value={customHour}
+                            onChange={(e) => setCustomHour(Number(e.target.value))}
+                            className="bg-transparent text-center text-base font-mono font-semibold text-text py-2.5 px-3 appearance-none outline-none cursor-pointer"
+                          >
+                            {Array.from({ length: 24 }, (_, i) => (
+                              <option key={i} value={i}>
+                                {String(i).padStart(2, '0')}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        <span className="text-base font-semibold text-muted">:</span>
+                        <div className="flex items-center rounded-lg bg-surface border border-border overflow-hidden">
+                          <select
+                            value={customMinute}
+                            onChange={(e) => setCustomMinute(Number(e.target.value))}
+                            className="bg-transparent text-center text-base font-mono font-semibold text-text py-2.5 px-3 appearance-none outline-none cursor-pointer"
+                          >
+                            {[0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55].map((m) => (
+                              <option key={m} value={m}>
+                                {String(m).padStart(2, '0')}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setEditingIndex(null)}
+                          className="flex-1 py-2 rounded-xl bg-surface text-muted text-sm font-medium hover:bg-bg transition-colors border border-border"
+                        >
+                          취소
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const updated = schedules.map((s, i) =>
+                              i === originalIdx
+                                ? { ...s, hour: customHour, minute: customMinute }
+                                : s
+                            );
+                            setSchedules(updated);
+                            setEditingIndex(null);
+                          }}
+                          className="flex-1 py-2 rounded-xl bg-primary-500/20 text-primary-500 text-sm font-semibold hover:bg-primary-500/30 transition-colors"
+                        >
+                          변경
+                        </button>
+                      </div>
+                    </div>
+                  );
+                }
+
                 return (
                   <div
                     key={`${schedule.hour}-${schedule.minute}`}
-                    className="flex items-center justify-between px-4 py-3 rounded-xl bg-bg/40 border border-border"
+                    className="flex items-center justify-between px-4 py-3 rounded-xl bg-bg/40 border border-border cursor-pointer hover:border-primary-500/40 transition-all"
+                    onClick={() => {
+                      setCustomHour(schedule.hour);
+                      setCustomMinute(schedule.minute);
+                      setEditingIndex(originalIdx);
+                    }}
                   >
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-lg bg-primary-500/10 flex items-center justify-center">
@@ -257,16 +328,22 @@ export default function NotificationSettings({
                         {formatTime(schedule.hour, schedule.minute)}
                       </span>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => removeSchedule(originalIdx)}
-                      className="p-1.5 rounded-lg text-muted hover:text-danger-500 hover:bg-danger-500/10 transition-all"
-                    >
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <line x1="18" y1="6" x2="6" y2="18" />
-                        <line x1="6" y1="6" x2="18" y2="18" />
-                      </svg>
-                    </button>
+                    <div className="flex items-center gap-1">
+                      <span className="text-xs text-muted mr-1">수정</span>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeSchedule(originalIdx);
+                        }}
+                        className="p-1.5 rounded-lg text-muted hover:text-danger-500 hover:bg-danger-500/10 transition-all"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <line x1="18" y1="6" x2="6" y2="18" />
+                          <line x1="6" y1="6" x2="18" y2="18" />
+                        </svg>
+                      </button>
+                    </div>
                   </div>
                 );
               })}
