@@ -78,6 +78,20 @@ export default function GoalDetail() {
     }
   };
 
+  // Streak에 따른 동기부여 문구
+  const getMotivationMessage = (streak: number, todaySuccess: boolean) => {
+    if (todaySuccess) {
+      if (streak >= 30) return '한 달 넘게 이어가고 있어요. 대단해요!';
+      if (streak >= 7) return '꾸준함이 빛나고 있어요!';
+      return '오늘도 한 걸음 나아갔어요!';
+    }
+    if (streak === 0) return '첫 시작이 가장 어려워요. 오늘 해볼까요?';
+    if (streak >= 30) return '한 달 넘게 이어왔어요. 오늘도 이어가요!';
+    if (streak >= 7) return '일주일 넘게 달려왔어요. 멈추지 마세요!';
+    if (streak >= 3) return '좋은 흐름이에요. 계속 가봐요!';
+    return '시작이 반이에요. 오늘도 도전!';
+  };
+
   // Streak에 따른 카드 스타일
   const getStreakCardStyle = (streak: number) => {
     if (streak >= 30) return 'bg-success-500/5 border-success-500/20';
@@ -224,8 +238,13 @@ export default function GoalDetail() {
             </div>
           </div>
 
+          {/* 동기부여 문구 */}
+          <p className="mt-4 text-center text-sm text-muted">
+            {getMotivationMessage(goal.current_streak, goal.today_success)}
+          </p>
+
           {/* 첫 행동 */}
-          <div className="mt-5 pt-4 border-t border-border/50">
+          <div className="mt-4 pt-4 border-t border-border/50">
             <p className="text-xs text-muted mb-1">첫 행동</p>
             <p className="text-sm text-text font-medium">{goal.first_action}</p>
           </div>
@@ -281,32 +300,71 @@ export default function GoalDetail() {
       </div>
 
       {/* CTA */}
-      <div className="pt-2">
+      <div className="pt-2 space-y-3">
         {goal.today_success ? (
-          <div className="w-full py-4 rounded-2xl bg-success-500/10 border border-success-500/20 text-center">
-            <span className="text-success-500 font-semibold">오늘도 해냈어요!</span>
-          </div>
+          <>
+            <div className="w-full py-4 rounded-2xl bg-success-500/10 border border-success-500/20 text-center">
+              <span className="text-success-500 font-semibold">오늘도 해냈어요!</span>
+            </div>
+            <button
+              onClick={() => navigate(`/goals/${id}/insights`)}
+              className="w-full py-3 rounded-2xl bg-surface border border-border text-text font-medium transition-all active:scale-[0.98] hover:bg-bg flex items-center justify-center gap-2"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="20" x2="18" y2="10"/>
+                <line x1="12" y1="20" x2="12" y2="4"/>
+                <line x1="6" y1="20" x2="6" y2="14"/>
+              </svg>
+              상세 통계 보기
+            </button>
+          </>
         ) : goal.today_attempted ? (
-          <button
-            onClick={() => setShowRevivalModal(true)}
-            className={`w-full py-4 rounded-2xl font-semibold text-lg transition-all active:scale-[0.98] ${
-              goal.revival_cards > 0
-                ? 'bg-amber-500/10 border-2 border-amber-500/30 text-amber-600 dark:text-amber-400 hover:bg-amber-500/15'
-                : 'bg-surface border border-border text-muted cursor-default'
-            }`}
-          >
-            {goal.revival_cards > 0
-              ? `부활 카드 사용하기 (${goal.revival_cards}장)`
-              : '내일 다시 도전해요'
-            }
-          </button>
+          <>
+            <button
+              onClick={() => setShowRevivalModal(true)}
+              className={`w-full py-4 rounded-2xl font-semibold text-lg transition-all active:scale-[0.98] ${
+                goal.revival_cards > 0
+                  ? 'bg-amber-500/10 border-2 border-amber-500/30 text-amber-600 dark:text-amber-400 hover:bg-amber-500/15'
+                  : 'bg-surface border border-border text-muted cursor-default'
+              }`}
+            >
+              {goal.revival_cards > 0
+                ? `부활 카드 사용하기 (${goal.revival_cards}장)`
+                : '내일 다시 도전해요'
+              }
+            </button>
+            <button
+              onClick={() => navigate(`/goals/${id}/insights`)}
+              className="w-full py-3 rounded-2xl bg-surface border border-border text-muted font-medium transition-all active:scale-[0.98] hover:bg-bg flex items-center justify-center gap-2 text-sm"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="20" x2="18" y2="10"/>
+                <line x1="12" y1="20" x2="12" y2="4"/>
+                <line x1="6" y1="20" x2="6" y2="14"/>
+              </svg>
+              상세 통계 보기
+            </button>
+          </>
         ) : (
-          <button
-            onClick={() => navigate(`/goals/${id}/countdown`)}
-            className="w-full py-4 rounded-2xl bg-primary-500 hover:bg-primary-600 text-white font-semibold text-lg transition-all active:scale-[0.98] shadow-lg shadow-primary-500/20"
-          >
-            지금 시작하기
-          </button>
+          <>
+            <button
+              onClick={() => navigate(`/goals/${id}/countdown`)}
+              className="w-full py-4 rounded-2xl bg-primary-500 hover:bg-primary-600 text-white font-semibold text-lg transition-all active:scale-[0.98] shadow-lg shadow-primary-500/20"
+            >
+              지금 시작하기
+            </button>
+            <button
+              onClick={() => navigate(`/goals/${id}/insights`)}
+              className="w-full py-3 rounded-2xl bg-surface border border-border text-muted font-medium transition-all active:scale-[0.98] hover:bg-bg flex items-center justify-center gap-2 text-sm"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="20" x2="18" y2="10"/>
+                <line x1="12" y1="20" x2="12" y2="4"/>
+                <line x1="6" y1="20" x2="6" y2="14"/>
+              </svg>
+              상세 통계 보기
+            </button>
+          </>
         )}
       </div>
 
