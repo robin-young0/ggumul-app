@@ -6,6 +6,8 @@ import type { GoalCreateUpdate } from '@/types';
 import { getGoal } from '@/api/goals';
 import { ALL_DAYS } from '@/constants/date';
 import NotificationSettings from '@/components/NotificationSettings';
+import { saveNotificationSchedules, deleteNotificationSchedules } from '@/utils/notificationSchedule';
+import { getFCMToken } from '@/utils/fcm';
 
 interface ScheduleEntry {
   hour: number;
@@ -83,11 +85,31 @@ export default function GoalForm() {
           : [],
       };
 
+      let goalId: number;
+
       if (isEdit && id) {
         await updateGoal(Number(id), data);
+        goalId = Number(id);
       } else {
-        await addGoal(data);
+        goalId = await addGoal(data);
       }
+
+      // 알림이 활성화된 경우 Firestore에 스케줄 저장
+      if (enableNotification && schedules.length > 0) {
+        // FCM 토큰 등록 (없으면)
+        await getFCMToken();
+
+        // Firestore에 스케줄 저장
+        await saveNotificationSchedules(
+          goalId,
+          name.trim(),
+          schedules.map((s) => ({ ...s, days: notificationDays }))
+        );
+      } else {
+        // 알림이 비활성화된 경우 스케줄 삭제
+        await deleteNotificationSchedules(goalId);
+      }
+
       navigate('/');
     } catch {
       setError('저장에 실패했어요. 다시 시도해주세요.');
@@ -103,7 +125,12 @@ export default function GoalForm() {
     setLoading(true);
     setError(null);
     try {
+      // 알림 스케줄 삭제
+      await deleteNotificationSchedules(Number(id));
+
+      // 목표 삭제
       await deleteGoal(Number(id));
+
       navigate('/');
     } catch {
       setError('삭제에 실패했어요. 다시 시도해주세요.');
