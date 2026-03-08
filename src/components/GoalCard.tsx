@@ -74,8 +74,8 @@ export default function GoalCard({ goal }: GoalCardProps) {
           </p>
         </div>
 
-        {/* 중간: 상태 + Streak 한 줄 */}
-        <div className="flex items-center gap-3 mb-4">
+        {/* 중간: 상태 + Streak + 알림 한 줄 */}
+        <div className="flex items-center gap-3 mb-4 flex-wrap">
           <div className="text-xs text-muted">
             {goal.today_success ? (
               <span className="inline-flex items-center gap-1 text-success-600 dark:text-success-500 font-medium">
@@ -95,6 +95,20 @@ export default function GoalCard({ goal }: GoalCardProps) {
           {goal.current_streak > 0 && (
             <div className="flex-shrink-0 inline-flex items-center gap-1 text-xs font-semibold text-primary-600 dark:text-primary-500 bg-primary-500/10 px-2.5 py-1 rounded-full">
               🔥 {goal.current_streak}일
+            </div>
+          )}
+
+          {goal.notification_schedules && goal.notification_schedules.length > 0 && (
+            <div className="flex-shrink-0 inline-flex items-center gap-1 text-xs text-muted">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+              </svg>
+              {goal.notification_schedules
+                .slice()
+                .sort((a, b) => a.hour * 60 + a.minute - (b.hour * 60 + b.minute))
+                .map((s) => `${String(s.hour).padStart(2, '0')}:${String(s.minute).padStart(2, '0')}`)
+                .join(', ')}
             </div>
           )}
         </div>

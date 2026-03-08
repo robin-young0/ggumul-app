@@ -160,6 +160,54 @@ export default function GoalDetail() {
             </svg>
             카운트다운: {Math.round(goal.countdown_seconds / 60)}분
           </div>
+
+          {/* 알림 설정 정보 */}
+          {goal.notification_schedules && goal.notification_schedules.length > 0 && (
+            <div className="mt-4 pt-4 border-t border-border">
+              <div className="flex items-center gap-2 mb-3">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary-500">
+                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                  <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                </svg>
+                <span className="text-sm font-semibold text-text">알림 시간</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {goal.notification_schedules
+                  .slice()
+                  .sort((a, b) => a.hour * 60 + a.minute - (b.hour * 60 + b.minute))
+                  .map((schedule, idx) => (
+                    <div
+                      key={idx}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary-500/10 border border-primary-500/20"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary-500">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12 6 12 12 16 14"/>
+                      </svg>
+                      <span className="text-sm font-mono font-semibold text-primary-500">
+                        {String(schedule.hour).padStart(2, '0')}:{String(schedule.minute).padStart(2, '0')}
+                      </span>
+                    </div>
+                  ))}
+              </div>
+              <div className="mt-2 text-xs text-muted">
+                {goal.notification_schedules[0].days.length === 7 ? (
+                  '매일'
+                ) : goal.notification_schedules[0].days.length === 5 &&
+                   goal.notification_schedules[0].days.every(d => d >= 1 && d <= 5) ? (
+                  '평일'
+                ) : goal.notification_schedules[0].days.length === 2 &&
+                   goal.notification_schedules[0].days.includes(0) &&
+                   goal.notification_schedules[0].days.includes(6) ? (
+                  '주말'
+                ) : (
+                  ['일', '월', '화', '수', '목', '금', '토']
+                    .filter((_, idx) => goal.notification_schedules![0].days.includes(idx))
+                    .join(', ')
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* 통계 그리드 */}

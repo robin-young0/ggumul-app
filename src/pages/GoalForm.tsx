@@ -94,20 +94,20 @@ export default function GoalForm() {
         goalId = await addGoal(data);
       }
 
-      // 알림이 활성화된 경우 Firestore에 스케줄 저장
-      if (enableNotification && schedules.length > 0) {
-        // FCM 토큰 등록 (없으면)
-        await getFCMToken();
-
-        // Firestore에 스케줄 저장
-        await saveNotificationSchedules(
-          goalId,
-          name.trim(),
-          schedules.map((s) => ({ ...s, days: notificationDays }))
-        );
-      } else {
-        // 알림이 비활성화된 경우 스케줄 삭제
-        await deleteNotificationSchedules(goalId);
+      // 알림이 활성화된 경우 Firestore에 스케줄 저장 (실패해도 목표 저장은 유지)
+      try {
+        if (enableNotification && schedules.length > 0) {
+          await getFCMToken();
+          await saveNotificationSchedules(
+            goalId,
+            name.trim(),
+            schedules.map((s) => ({ ...s, days: notificationDays }))
+          );
+        } else {
+          await deleteNotificationSchedules(goalId);
+        }
+      } catch (err) {
+        console.error('[GoalForm] 알림 스케줄 저장 실패 (목표는 저장됨):', err);
       }
 
       navigate('/');
